@@ -23,6 +23,9 @@ Our ambition includes but not limited in giving it possibility to improve ab ini
    :maxdepth: 2
    :caption: Contents:
 
+   _dev_guide/index
+   _user_guide/index
+   _API_doc/index
 
 
 If you use this plugin for your research, please cite the following work:
