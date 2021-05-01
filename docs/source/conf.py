@@ -35,7 +35,6 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
-    'sphinxcontrib.contentui',
     "sphinx_rtd_theme",
 ]
 
