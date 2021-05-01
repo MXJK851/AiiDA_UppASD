@@ -46,6 +46,8 @@ If you use AiiDA for your research, please cite the following work:
    for computational science*, Comp. Mat. Sci 111, 218-230 (2016);
    https://doi.org/10.1016/j.commatsci.2015.09.013; http://www.aiida.net.
 
+This plugin is start from AiiDA_diff demo
+
 Indices and tables
 ==================
 
