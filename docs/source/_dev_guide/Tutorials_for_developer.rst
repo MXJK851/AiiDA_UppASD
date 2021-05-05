@@ -1,3 +1,3 @@
 =======================
-Tutorials_for_developer
+Tutorials for developer
 =======================
