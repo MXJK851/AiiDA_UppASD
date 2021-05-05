@@ -8,7 +8,7 @@ from aiida.engine import CalcJob
 from aiida.orm import SinglefileData
 from aiida.plugins import DataFactory
 
-DiffParameters = DataFactory('diff')
+DiffParameters = DataFactory('diff') #entry point is used here
 
 
 class DiffCalculation(CalcJob):
