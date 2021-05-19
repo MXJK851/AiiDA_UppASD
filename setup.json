@@ -1,9 +1,9 @@
 {
-    "name": "aiida-diff",
-    "author": "The AiiDA Team",
-    "author_email": "",
-    "description": "AiiDA demo plugin that wraps the `diff` executable for computing the difference between two files.",
-    "url": "https://github.com/aiidateam/aiida-diff",
+    "name": "UppASD_AiiDA_interface",
+    "author": "Qichen Xu, Anders Bergman, Anna Delin, Jonathan Chico",
+    "author_email": "qichenx@kth.se",
+    "description": "Interface for UppASD and AiiDA",
+    "url": "",
     "license": "MIT",
     "classifiers": [
         "Programming Language :: Python",
@@ -12,19 +12,19 @@
         "Natural Language :: English",
         "Framework :: AiiDA"
     ],
-    "version": "1.2.0",
+    "version": "0.0.1",
     "entry_points": {
         "aiida.data": [
-            "diff = aiida_diff.data:DiffParameters"
+            "UppASD_core_data = UppASD_AiiDA.data.core_data:SpinDynamic_core_parameters"
         ],
         "aiida.calculations": [
-            "diff = aiida_diff.calculations:DiffCalculation"
+            "UppASD_core_calculations = UppASD_AiiDA.calculation.core_calcs:SpinDynamic_core_calculations"
         ],
         "aiida.parsers": [
-            "diff = aiida_diff.parsers:DiffParser"
-        ],
+            "UppASD_core_parsers = UppASD_AiiDA.parsers.core_parser:SpinDynamic_core_parser"
+        ], 
         "aiida.cmdline.data": [
-            "diff = aiida_diff.cli:data_cli"
+            "UppASD_core_cmdline = UppASD_AiiDA.cmdline.core_cmdline:SpinDynamic_core_cmdline"
         ]
     },
     "include_package_data": true,

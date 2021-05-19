@@ -5,6 +5,9 @@ Data types provided by plugin
 Register data types via the "aiida.data" entry point in setup.json.
 """
 
+
+
+'''
 # You can directly use or subclass aiida.orm.data.Data
 # or any other data type listed under 'verdi data'
 from aiida.orm import Dict
@@ -92,3 +95,4 @@ class DiffParameters(Dict):
         string = super(DiffParameters, self).__str__()
         string += "\n" + str(self.get_dict())
         return string
+'''
