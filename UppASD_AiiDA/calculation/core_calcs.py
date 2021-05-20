@@ -9,7 +9,8 @@ from aiida.orm import SinglefileData, Int, Float, Str, Bool, List, Dict, ArrayDa
 from aiida.plugins import DataFactory
 import numpy as np
 
-SD_Parameters = DataFactory('SpinDynamic_core_calculations') #registed in setup.json file
+# registed in setup.json file
+SD_Parameters = DataFactory('SpinDynamic_core_calculations')
 
 
 class SpinDynamic_core_calculations(CalcJob):
@@ -18,22 +19,30 @@ class SpinDynamic_core_calculations(CalcJob):
     Basic 
     """
     @classmethod
-    def define(cls, spec):# cls this is the reference of the class itself and is mandatory for any class method, spec which is the ‘specification’
+    def define(cls, spec):  # cls this is the reference of the class itself and is mandatory for any class method, spec which is the ‘specification’
         """Define inputs and outputs of the calculation."""
         # yapf: disable
-        super(SpinDynamic_core_calculations, cls).define(spec)#replace the class name cls with the name of UppASD calculation job
+        # replace the class name cls with the name of UppASD calculation job
+        super(SpinDynamic_core_calculations, cls).define(spec)
         # input file sections :
         # Core data types: Int, Float, Str, Bool, List, Dict, ArrayData, XyData, SinglefileData, FolderData, RemoteData.  Please classify UppASD's need(in furture :-) ) into those and update plugins
-        spec.input('dmdata', valid_type=SinglefileData, help='dmdata input file')
+        spec.input('dmdata', valid_type=SinglefileData,
+                   help='dmdata input file')
         spec.input('jij', valid_type=SinglefileData, help='jij input file')
-        spec.input('momfile', valid_type=SinglefileData, help='momfile input file')
-        spec.input('posfile', valid_type=SinglefileData, help='posfile input file')
+        spec.input('momfile', valid_type=SinglefileData,
+                   help='momfile input file')
+        spec.input('posfile', valid_type=SinglefileData,
+                   help='posfile input file')
         spec.input('qfile', valid_type=SinglefileData, help='qfile input file')
         # inpsd.dat input section:
-        spec.input('simid', valid_type=Str, help='UppASD instance name (first line in inpsd.dat file)')
-        spec.input('ncell', valid_type=ArrayData, help='Cell matrix 1*3 in np.array')
-        spec.input('BC', valid_type=Str, help='looks like: "P    P    0" for Boundary conditions')
-        spec.input('cell', valid_type=ArrayData, help='Cell matrix 3*3 in np.array')
+        spec.input('simid', valid_type=Str,
+                   help='UppASD instance name (first line in inpsd.dat file)')
+        spec.input('ncell', valid_type=ArrayData,
+                   help='Cell matrix 1*3 in np.array')
+        spec.input('BC', valid_type=Str,
+                   help='looks like: "P    P    0" for Boundary conditions')
+        spec.input('cell', valid_type=ArrayData,
+                   help='Cell matrix 3*3 in np.array')
         spec.input('do_prnstruct', valid_type=Int, help='single int like 2')
         spec.input('maptype', valid_type=Int, help='single int like 2')
         spec.input('SDEalgh', valid_type=Int, help='single int like 2')
@@ -45,22 +54,29 @@ class SpinDynamic_core_calculations(CalcJob):
         spec.input('temp', valid_type=Float, help='Float like 2.12010')
         spec.input('damping', valid_type=Float, help='Float like 2.12010')
         spec.input('Nstep', valid_type=Int, help='Int like 500')
-        spec.input('timestep', valid_type=Str, help='1.000d-15')  # note that in python it should be 1e-15 but in inpsd.dat file it's 1d-15 so I set it as str here first.
+        # note that in python it should be 1e-15 but in inpsd.dat file it's 1d-15 so I set it as str here first.
+        spec.input('timestep', valid_type=Str, help='1.000d-15')
         spec.input('qpoints', valid_type=Str, help='like F')
         spec.input('plotenergy', valid_type=Int, help='like 1')
         spec.input('do_avrg', valid_type=Str, help='Y or N')
 
         # output sections:
         # the instance that defined here should be used in parser
-        spec.output('totenergy', valid_type=ArrayData, help='all data that stored in totenergy.SCsurf_T.out')
-        spec.output('coord', valid_type=ArrayData, help='all data that stored in coord.SCsurf_T.out')
-        spec.output('qpoints', valid_type=ArrayData, help='all data that stored in qpoints.out')
-        spec.output('averages', valid_type=ArrayData, help='all data that stored in averages.SCsurf_T.out')
-        spec.output('qm_sweep', valid_type=ArrayData, help='all data that stored in qm_sweep.SCsurf_T.out')
-        spec.output('qm_minima', valid_type=ArrayData, help='all data that stored in qm_minima.SCsurf_T.out')
+        spec.output('totenergy', valid_type=ArrayData,
+                    help='all data that stored in totenergy.SCsurf_T.out')
+        spec.output('coord', valid_type=ArrayData,
+                    help='all data that stored in coord.SCsurf_T.out')
+        spec.output('qpoints', valid_type=ArrayData,
+                    help='all data that stored in qpoints.out')
+        spec.output('averages', valid_type=ArrayData,
+                    help='all data that stored in averages.SCsurf_T.out')
+        spec.output('qm_sweep', valid_type=ArrayData,
+                    help='all data that stored in qm_sweep.SCsurf_T.out')
+        spec.output('qm_minima', valid_type=ArrayData,
+                    help='all data that stored in qm_minima.SCsurf_T.out')
         # exit code section
-        spec.exit_code(100, 'ERROR_MISSING_OUTPUT_FILES', message='Calculation did not produce all expected output files.')
-
+        spec.exit_code(100, 'ERROR_MISSING_OUTPUT_FILES',
+                       message='Calculation did not produce all expected output files.')
 
     def prepare_for_submission(self, folder):
         """
@@ -70,7 +86,7 @@ class SpinDynamic_core_calculations(CalcJob):
             the calculation.
         :return: `aiida.common.datastructures.CalcInfo` instance
         """
-        #Create input file: inpsd.dat
+        # Create input file: inpsd.dat
         input_dmdata = self.inputs.dmdata
         input_jij = self.inputs.jij
         input_momfile = self.inputs.momfile
@@ -97,17 +113,19 @@ class SpinDynamic_core_calculations(CalcJob):
         input_plotenergy = self.inputs.plotenergy
         input_do_avrg = self.inputs.do_avrg
 
-        #write inpsd.dat
-        with folder.open(self.options.input_filename,'a+') as f:   #it seems we don's need to put it in local_copy_list ?
+        # write inpsd.dat
+        # it seems we don's need to put it in local_copy_list ?
+        with folder.open(self.options.input_filename, 'a+') as f:
             f.write(f'simid    {input_simid.value}\n')
 
             f.write("ncell   ")
-            np.savetext(f,input_ncell.get_array('matrix'))       # we set the default array name is "matrix"
+            # we set the default array name is "matrix"
+            np.savetext(f, input_ncell.get_array('matrix'))
 
             f.write(f'BC    {input_BC.value}\n')
 
             f.write("cell   ")
-            np.savetext(f,input_cell.get_array('matrix'))
+            np.savetext(f, input_cell.get_array('matrix'))
 
             f.write(f'do_prnstruct    {input_do_prnstruct.value}\n')
 
@@ -116,7 +134,7 @@ class SpinDynamic_core_calculations(CalcJob):
             f.write(f'exchange    ./{input_jij.filename}\n')
 
             f.write(f'momfile    ./{input_momfile.filename}\n')
-            
+
             f.write(f'dm    ./{input_dmdata.filename}\n')
 
             f.write(f'maptype    {input_maptype.value}\n')
@@ -128,10 +146,10 @@ class SpinDynamic_core_calculations(CalcJob):
             f.write(f'ip_mode    {input_ip_mode.value}\n')
 
             f.write("qm_svec   ")
-            np.savetext(f,input_qm_svec.get_array('matrix'))
+            np.savetext(f, input_qm_svec.get_array('matrix'))
 
             f.write("qm_svec   ")
-            np.savetext(f,input_qm_nvec.get_array('matrix'))
+            np.savetext(f, input_qm_nvec.get_array('matrix'))
 
             f.write(f'mode    {input_mode.value}\n')
 
@@ -151,11 +169,8 @@ class SpinDynamic_core_calculations(CalcJob):
 
             f.write(f'do_avrg    {input_do_avrg.value}\n')
 
-
         codeinfo = datastructures.CodeInfo()
-        codeinfo.cmdline_params = self.inputs.parameters.cmdline_params(
-            file1_name=self.inputs.file1.filename,
-            file2_name=self.inputs.file2.filename)
+        codeinfo.cmdline_params = []# note that nothing need here for SD 
         codeinfo.code_uuid = self.inputs.code.uuid
         codeinfo.stdout_name = self.metadata.options.output_filename
         codeinfo.withmpi = self.inputs.metadata.options.withmpi
@@ -164,14 +179,18 @@ class SpinDynamic_core_calculations(CalcJob):
         calcinfo = datastructures.CalcInfo()
         calcinfo.codes_info = [codeinfo]
         calcinfo.local_copy_list = [
-            (self.inputs.dmdata.uuid, self.inputs.dmdata.filename,self.inputs.dmdata.filename),
+            (self.inputs.dmdata.uuid, self.inputs.dmdata.filename,
+             self.inputs.dmdata.filename),
             (self.inputs.jij.uuid, self.inputs.jij.filename, self.inputs.jij.filename),
-            (self.inputs.momfile.uuid, self.inputs.momfile.filename, self.inputs.momfile.filename),
-            (self.inputs.posfile.uuid, self.inputs.posfile.filename, self.inputs.posfile.filename),
-            (self.inputs.qfile.uuid, self.inputs.qfile.filename, self.inputs.qfile.filename),
+            (self.inputs.momfile.uuid, self.inputs.momfile.filename,
+             self.inputs.momfile.filename),
+            (self.inputs.posfile.uuid, self.inputs.posfile.filename,
+             self.inputs.posfile.filename),
+            (self.inputs.qfile.uuid, self.inputs.qfile.filename,
+             self.inputs.qfile.filename),
         ]
+        #calc_info.remote_copy_list[(self.inputs.parent_folder.computer.uuid, 'output_folder', 'restart_folder')]
         calcinfo.retrieve_list = [self.metadata.options.output_filename]
-
         return calcinfo
 
 
