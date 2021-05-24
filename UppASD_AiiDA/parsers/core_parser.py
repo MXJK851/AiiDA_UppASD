@@ -8,26 +8,23 @@ from aiida.orm import SinglefileData, ArrayData
 import numpy as np
 import pandas as pd
 
-DiffCalculation = CalculationFactory(
-    'UppASD_core_calculations')  # registed in setup.json
-
 
 def total_energy_file_paser(file_name_of_total_energy):
     # here the inputfile name should be totenergy.SCsurf_T.out
     result = pd.read_csv(file_name_of_total_energy,
                          sep='\s+', header=None).drop([0])
-    Iter_num = np.array(result[0])
-    Tot = np.array(result[1])
-    Exc = np.array(result[2])
-    Ani = np.array(result[3])
-    DM = np.array(result[4])
-    PD = np.array(result[5])
-    BiqDM = np.array(result[6])
-    BQ = np.array(result[7])
-    Dip = np.array(result[8])
-    Zeeman = np.array(result[9])
-    LSF = np.array(result[10])
-    Chir = np.array(result[11])
+    Iter_num = np.array(list(result[0]))
+    Tot = np.array(list(result[1]))
+    Exc = np.array(list(result[2]))
+    Ani = np.array(list(result[3]))
+    DM = np.array(list(result[4]))
+    PD = np.array(list(result[5]))
+    BiqDM = np.array(list(result[6]))
+    BQ = np.array(list(result[7]))
+    Dip = np.array(list(result[8]))
+    Zeeman = np.array(list(result[9]))
+    LSF = np.array(list(result[10]))
+    Chir = np.array(list(result[11]))
     return Iter_num, Tot, Exc, Ani, DM, PD, BiqDM, BQ, Dip, Zeeman, LSF, Chir
 
 
@@ -64,11 +61,16 @@ def qm_minima_file_paser(file_name_of_qm_minima):
 def averages_file_paser(file_name_of_averages):
     result = pd.read_csv(file_name_of_averages,
                          sep='\s+', header=None).drop([0])
-    M_x = np.array(result)[:, 1]
-    M_y = np.array(result)[:, 2]
-    M_z = np.array(result)[:, 3]
-    M = np.array(result)[:, 4]
-    M_stdv = np.array(result)[:, 5]
+    # M_x = np.array(result)[:, 1]
+    # M_y = np.array(result)[:, 2]
+    # M_z = np.array(result)[:, 3]
+    # M = np.array(result)[:, 4]
+    # M_stdv = np.array(result)[:, 5]
+    M_x = np.array(list(np.array(result)[:, 1]))
+    M_y = np.array(list(np.array(result)[:, 2]))
+    M_z = np.array(list(np.array(result)[:, 3]))
+    M = np.array(list(np.array(result)[:, 4]))
+    M_stdv = np.array(list(np.array(result)[:, 5]))
     return M_x, M_y, M_z, M, M_stdv
 
 
@@ -81,14 +83,14 @@ def _file_paser(file_name_of_):
 '''
 
 
-class DiffParser(Parser):
+class SpinDynamic_core_parser(Parser):
     """
     Parser class for parsing output of calculation.
     """
 
-    def __init__(self, node):
-        """
-        """
+    # def __init__(self, node):
+    #     """
+    #     """
 
     def parse(self, **kwargs):
         """

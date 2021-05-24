@@ -6,12 +6,10 @@ Register calculations via the "aiida.calculations" entry point in setup.json.
 from aiida.common import datastructures
 from aiida.engine import CalcJob
 from aiida.orm import SinglefileData, Int, Float, Str, Bool, List, Dict, ArrayData, XyData, SinglefileData, FolderData, RemoteData
-from aiida.plugins import DataFactory
+from aiida.plugins import DataFactory,CalculationFactory
 import numpy as np
 
 # registed in setup.json file
-SD_Parameters = DataFactory('SpinDynamic_core_calculations')
-
 
 class SpinDynamic_core_calculations(CalcJob):
     """
@@ -60,6 +58,8 @@ class SpinDynamic_core_calculations(CalcJob):
         spec.input('plotenergy', valid_type=Int, help='like 1')
         spec.input('do_avrg', valid_type=Str, help='Y or N')
 
+
+        spec.input('retrieve_list_name', valid_type=List, help='list of output file name')
         # output sections:
         # the instance that defined here should be used in parser
         spec.output('totenergy', valid_type=ArrayData,
@@ -113,19 +113,20 @@ class SpinDynamic_core_calculations(CalcJob):
         input_plotenergy = self.inputs.plotenergy
         input_do_avrg = self.inputs.do_avrg
 
+        input_retrieve_list_name = self.inputs.retrieve_list_name
         # write inpsd.dat
         # it seems we don's need to put it in local_copy_list ?
         with folder.open(self.options.input_filename, 'a+') as f:
             f.write(f'simid    {input_simid.value}\n')
 
-            f.write("ncell   ")
+            f.write(f"ncell   {input_ncell.get_array('matrix')[0]}  {input_ncell.get_array('matrix')[1]}  {input_ncell.get_array('matrix')[2]} \n")
             # we set the default array name is "matrix"
-            np.savetext(f, input_ncell.get_array('matrix'))
+            #np.savetxt(f, input_ncell.get_array('matrix'))
 
             f.write(f'BC    {input_BC.value}\n')
 
             f.write("cell   ")
-            np.savetext(f, input_cell.get_array('matrix'))
+            np.savetxt(f, input_cell.get_array('matrix'))
 
             f.write(f'do_prnstruct    {input_do_prnstruct.value}\n')
 
@@ -145,11 +146,9 @@ class SpinDynamic_core_calculations(CalcJob):
 
             f.write(f'ip_mode    {input_ip_mode.value}\n')
 
-            f.write("qm_svec   ")
-            np.savetext(f, input_qm_svec.get_array('matrix'))
+            f.write(f"qm_svec   {input_qm_svec.get_array('matrix')[0]}  {input_qm_svec.get_array('matrix')[1]}  {input_qm_svec.get_array('matrix')[2]} \n")
 
-            f.write("qm_svec   ")
-            np.savetext(f, input_qm_nvec.get_array('matrix'))
+            f.write(f"qm_nvec   {input_qm_nvec.get_array('matrix')[0]}  {input_qm_nvec.get_array('matrix')[1]}  {input_qm_nvec.get_array('matrix')[2]} \n")
 
             f.write(f'mode    {input_mode.value}\n')
 
@@ -172,8 +171,8 @@ class SpinDynamic_core_calculations(CalcJob):
         codeinfo = datastructures.CodeInfo()
         codeinfo.cmdline_params = []# note that nothing need here for SD 
         codeinfo.code_uuid = self.inputs.code.uuid
-        codeinfo.stdout_name = self.metadata.options.output_filename
-        codeinfo.withmpi = self.inputs.metadata.options.withmpi
+        #codeinfo.stdout_name = self.metadata.options.output_filename
+        #codeinfo.withmpi = self.inputs.metadata.options.withmpi
 
         # Prepare a `CalcInfo` to be returned to the engine
         calcinfo = datastructures.CalcInfo()
@@ -190,7 +189,7 @@ class SpinDynamic_core_calculations(CalcJob):
              self.inputs.qfile.filename),
         ]
         #calc_info.remote_copy_list[(self.inputs.parent_folder.computer.uuid, 'output_folder', 'restart_folder')]
-        calcinfo.retrieve_list = [self.metadata.options.output_filename]
+        calcinfo.retrieve_list =input_retrieve_list_name.get_list()
         return calcinfo
 
 
