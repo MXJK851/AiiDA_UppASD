@@ -26,28 +26,29 @@ def test_process():
         file=os.path.join(os.getcwd(), "input_files", 'posfile'))
     qfile = SinglefileData(
         file=os.path.join(os.getcwd(), "input_files", 'qfile'))
+    inpsd_dat = SinglefileData(
+        file=os.path.join(os.getcwd(), "input_files", 'inpsd.dat'))# not that if you want to use input dict, set it to None
+    # like inpsd_dat = None
     # inpsd.dat file selection
     simid = Str('SCsurf_T')
 
-    ncell = ArrayData()
-    ncell.set_array('matrix', np.array([128, 128, 1]))
+    ncell = Str('128 128 1')
 
     BC = Str('P         P         0 ')
 
-    cell = ArrayData()
-    cell.set_array('matrix', np.array([[1.00000, 0.00000, 0.00000], [
-                   0.00000, 1.00000, 0.00000], [0.00000, 0.00000, 1.00000]]))
+    cell = Str('''1.00000 0.00000 0.00000
+0.00000 1.00000 0.00000
+0.00000 0.00000 1.00000''')
+
 
     do_prnstruct = Int(2)
     maptype = Int(2)
     SDEalgh = Int(1)
     Initmag = Int(3)
     ip_mode = Str('Q')
-    qm_svec = ArrayData()
-    qm_svec.set_array('matrix', np.array([1, -1, 0]))
+    qm_svec = Str('1   -1   0 ')
 
-    qm_nvec = ArrayData()
-    qm_nvec.set_array('matrix', np.array([0, 0, 1]))
+    qm_nvec = Str('0  0  1')
 
     mode = Str('S')
     temp = Float(0.000)
@@ -71,32 +72,42 @@ def test_process():
                                     'qm_restart.SCsurf_T.out',
                                     'restart.SCsurf_T.out'])
     # set up calculation
+    inpsd = Dict()    
+    inpsd.set_attribute('simid', simid)
+    inpsd.set_attribute('ncell', ncell)
+    inpsd.set_attribute('BC', BC)
+    inpsd.set_attribute('cell', cell)
+    inpsd.set_attribute('do_prnstruct', do_prnstruct)
+    inpsd.set_attribute('maptype', maptype)
+    inpsd.set_attribute('SDEalgh', SDEalgh)
+    inpsd.set_attribute('Initmag', Initmag)
+    inpsd.set_attribute('ip_mode', ip_mode)
+    inpsd.set_attribute('qm_svec', qm_svec)
+    inpsd.set_attribute('qm_nvec', qm_nvec)
+    inpsd.set_attribute('mode', mode)
+    inpsd.set_attribute('temp', temp)
+    inpsd.set_attribute('damping', damping)
+    inpsd.set_attribute('Nstep', Nstep)
+    inpsd.set_attribute('timestep', timestep)
+    inpsd.set_attribute('qpoints', qpoints)
+    inpsd.set_attribute('plotenergy', plotenergy)
+    inpsd.set_attribute('do_avrg', do_avrg)
+    #inpsd.set_attribute()
+
+
+
+
+
+
     inputs = {
         'code': code,
         'dmdata': dmdata,
         'jij': jij,
         'momfile': momfile,
         'posfile': posfile,
-        'qfile': qfile,
-        'simid': simid,
-        'ncell': ncell,
-        'BC': BC,
-        'cell': cell,
-        'do_prnstruct': do_prnstruct,
-        'maptype': maptype,
-        'SDEalgh': SDEalgh,
-        'Initmag': Initmag,
-        'ip_mode': ip_mode,
-        'qm_svec': qm_svec,
-        'qm_nvec': qm_nvec,
-        'mode': mode,
-        'temp': temp,
-        'damping': damping,
-        'Nstep': Nstep,
-        'timestep': timestep,
-        'qpoints': qpoints,
-        'plotenergy': plotenergy,
-        'do_avrg': do_avrg,
+        'qfile':qfile,
+        'inpsd': inpsd,
+        'inpsd_dat': inpsd_dat,
         'retrieve_list_name': r_l,
         'metadata': {
             'options': {
@@ -112,6 +123,3 @@ def test_process():
 
     result = run(CalculationFactory('UppASD_core_calculations'), **inputs)
     computed_diff = result['UppASD_core_calculations'].get_content()
-
-    assert 'content1' in computed_diff
-    assert 'content2' in computed_diff

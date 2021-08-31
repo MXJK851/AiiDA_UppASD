@@ -4,7 +4,7 @@ Parser for UppASD
 from aiida.engine import ExitCode
 from aiida.parsers.parser import Parser
 from aiida.plugins import CalculationFactory
-from aiida.orm import SinglefileData, ArrayData
+from aiida.orm import SinglefileData, ArrayData, Dict
 import numpy as np
 import pandas as pd
 
@@ -98,9 +98,12 @@ class SpinDynamic_core_parser(Parser):
         totenergy.SCsurf_T.out coord.SCsurf_T.out  qpoints.out  averages.SCsurf_T.out  qm_sweep.SCsurf_T.out  qm_minima.SCsurf_T.out
 
         """
+       #results = ArrayData()
         output_folder = self.retrieved
-
+        
         retrived_file_name_list = output_folder.list_object_names()
+
+
         for name in retrived_file_name_list:
             if 'coord' in name:
                 coord_filename = name
@@ -122,17 +125,18 @@ class SpinDynamic_core_parser(Parser):
             output_totenergy = ArrayData()
             output_totenergy.set_array('Iter_num', Iter_num)
             output_totenergy.set_array('Tot', Tot)
-            output_totenergy.set_array('Exc', Exc)
-            output_totenergy.set_array('Ani', Ani)
-            output_totenergy.set_array('DM', DM)
-            output_totenergy.set_array('PD', PD)
-            output_totenergy.set_array('BiqDM', BiqDM)
-            output_totenergy.set_array('BQ', BQ)
-            output_totenergy.set_array('Dip', Dip)
-            output_totenergy.set_array('Zeeman', Zeeman)
-            output_totenergy.set_array('LSF', LSF)
-            output_totenergy.set_array('Chir', Chir)
-        self.out('totenergy', output_totenergy)
+            output_totenergy.set_array('Exc', Exc )
+            output_totenergy.set_array('Ani', Ani )
+            output_totenergy.set_array('DM', DM )
+            output_totenergy.set_array('PD', PD )
+            output_totenergy.set_array('BiqDM', BiqDM )
+            output_totenergy.set_array('BQ', BQ )
+            output_totenergy.set_array('Dip', Dip )
+            output_totenergy.set_array('Zeeman', Zeeman )
+            output_totenergy.set_array('LSF', LSF )
+            output_totenergy.set_array('Chir', Chir )
+        self.out('totenergy', output_totenergy)         #it is not good to hold a particular output datatype
+        #results. set_array('totenergy', output_totenergy)
 
         # parse coord.xx.out
         self.logger.info("Parsing '{}'".format(coord_filename))
@@ -141,43 +145,63 @@ class SpinDynamic_core_parser(Parser):
             output_coord = ArrayData()
             output_coord.set_array('coord', coord)
         self.out('coord', output_coord)
+        #results. set_array('coord', output_coord)
+
 
         # parse qpoints.xx.out
         self.logger.info("Parsing '{}'".format(qpoints_filename))
         with output_folder.open(qpoints_filename, 'rb') as f:
             qpoints = qpoints_file_paser(f)
             output_qpoints = ArrayData()
-            output_qpoints.set_array('qpoints', qpoints)
+            output_qpoints.set_array('qpoints', qpoints )
         self.out('qpoints', output_qpoints)
+        #results. set_array('qpoints', output_qpoints)
+
 
         # parse averages.xx.out
         self.logger.info("Parsing '{}'".format(averages_filename))
         with output_folder.open(averages_filename, 'rb') as f:
             M_x, M_y, M_z, M, M_stdv = averages_file_paser(f)
             output_averages = ArrayData()
-            output_averages.set_array('M_x', M_x)
-            output_averages.set_array('M_y', M_y)
-            output_averages.set_array('M_z', M_z)
-            output_averages.set_array('M', M)
-            output_averages.set_array('M_stdv', M_stdv)
+            output_averages.set_array('M_x', M_x )
+            output_averages.set_array('M_y', M_y )
+            output_averages.set_array('M_z', M_z )
+            output_averages.set_array('M', M )
+            output_averages.set_array('M_stdv', M_stdv )
         self.out('averages', output_averages)
+        #results. set_array('averages', output_averages)
+
 
         # parse qm_sweep.xx.out
         self.logger.info("Parsing '{}'".format(qm_sweep_filename))
         with output_folder.open(qm_sweep_filename, 'rb') as f:
             Q_vector, Energy_mRy = qm_sweep_file_paser(f)
             output_qm_sweep = ArrayData()
-            output_qm_sweep.set_array('Q_vector', Q_vector)
-            output_qm_sweep.set_array('Energy_mRy', Energy_mRy)
+            output_qm_sweep.set_array('Q_vector', Q_vector )
+            output_qm_sweep.set_array('Energy_mRy', Energy_mRy )
         self.out('qm_sweep', output_qm_sweep)
+        #results. set_array('qm_sweep', output_qm_sweep)
+
 
         # parse qm_minima.xx.out
         self.logger.info("Parsing '{}'".format(qm_minima_filename))
         with output_folder.open(qm_minima_filename, 'rb') as f:
             Q_vector, Energy_mRy = qm_minima_file_paser(f)
             output_qm_minima = ArrayData()
-            output_qm_minima.set_array('Q_vector', Q_vector)
-            output_qm_minima.set_array('Energy_mRy', Energy_mRy)
+            output_qm_minima.set_array('Q_vector', Q_vector )
+            output_qm_minima.set_array('Energy_mRy', Energy_mRy )
         self.out('qm_minima', output_qm_minima)
+        #results. set_array('qm_minima', output_qm_minima)
+        
+        #self.out('out_parameters',results)
 
         return ExitCode(0)
+        #here we united all output array into a Dict 
+        
+        
+       
+    
+        
+
+
+    

@@ -33,6 +33,13 @@ class SpinDynamic_core_calculations(CalcJob):
                    help='posfile input file')
         spec.input('qfile', valid_type=SinglefileData, help='qfile input file')
         # inpsd.dat input section:
+        spec.input('inpsd_dat_exist', valid_type=Int, help='sign of usage of dict of inpsd.dat')
+        spec.input('inpsd', valid_type=Dict, help='the dict of inpsd.dat',required = False)
+        
+        spec.input('inpsd_dat', valid_type=SinglefileData, help='direct input of inpsd.dat',required = False)
+
+        '''
+        #the orginal implementation 
         spec.input('simid', valid_type=Str,
                    help='UppASD instance name (first line in inpsd.dat file)')
         spec.input('ncell', valid_type=ArrayData,
@@ -57,8 +64,7 @@ class SpinDynamic_core_calculations(CalcJob):
         spec.input('qpoints', valid_type=Str, help='like F')
         spec.input('plotenergy', valid_type=Int, help='like 1')
         spec.input('do_avrg', valid_type=Str, help='Y or N')
-
-
+        '''
         spec.input('retrieve_list_name', valid_type=List, help='list of output file name')
         # output sections:
         # the instance that defined here should be used in parser
@@ -86,98 +92,96 @@ class SpinDynamic_core_calculations(CalcJob):
             the calculation.
         :return: `aiida.common.datastructures.CalcInfo` instance
         """
-        # Create input file: inpsd.dat
-        input_dmdata = self.inputs.dmdata
-        input_jij = self.inputs.jij
-        input_momfile = self.inputs.momfile
-        input_posfile = self.inputs.posfile
-        input_qfile = self.inputs.qfile
-
-        input_simid = self.inputs.simid
-        input_ncell = self.inputs.ncell
-        input_BC = self.inputs.BC
-        input_cell = self.inputs.cell
-        input_do_prnstruct = self.inputs.do_prnstruct
-        input_maptype = self.inputs.maptype
-        input_SDEalgh = self.inputs.SDEalgh
-        input_Initmag = self.inputs.Initmag
-        input_ip_mode = self.inputs.ip_mode
-        input_qm_svec = self.inputs.qm_svec
-        input_qm_nvec = self.inputs.qm_nvec
-        input_mode = self.inputs.mode
-        input_temp = self.inputs.temp
-        input_damping = self.inputs.damping
-        input_Nstep = self.inputs.Nstep
-        input_timestep = self.inputs.timestep
-        input_qpoints = self.inputs.qpoints
-        input_plotenergy = self.inputs.plotenergy
-        input_do_avrg = self.inputs.do_avrg
-
-        input_retrieve_list_name = self.inputs.retrieve_list_name
-        # write inpsd.dat
-        # it seems we don's need to put it in local_copy_list ?
-        with folder.open(self.options.input_filename, 'a+') as f:
-            f.write(f'simid    {input_simid.value}\n')
-
-            f.write(f"ncell   {input_ncell.get_array('matrix')[0]}  {input_ncell.get_array('matrix')[1]}  {input_ncell.get_array('matrix')[2]} \n")
-            # we set the default array name is "matrix"
-            #np.savetxt(f, input_ncell.get_array('matrix'))
-
-            f.write(f'BC    {input_BC.value}\n')
-
-            f.write("cell   ")
-            np.savetxt(f, input_cell.get_array('matrix'))
-
-            f.write(f'do_prnstruct    {input_do_prnstruct.value}\n')
-
-            f.write(f'input_posfile    ./{input_posfile.filename}\n')
-
-            f.write(f'exchange    ./{input_jij.filename}\n')
-
-            f.write(f'momfile    ./{input_momfile.filename}\n')
-
-            f.write(f'dm    ./{input_dmdata.filename}\n')
-
-            f.write(f'maptype    {input_maptype.value}\n')
-
-            f.write(f'SDEalgh    {input_SDEalgh.value}\n')
-
-            f.write(f'Initmag    {input_Initmag.value}\n')
-
-            f.write(f'ip_mode    {input_ip_mode.value}\n')
-
-            f.write(f"qm_svec   {input_qm_svec.get_array('matrix')[0]}  {input_qm_svec.get_array('matrix')[1]}  {input_qm_svec.get_array('matrix')[2]} \n")
-
-            f.write(f"qm_nvec   {input_qm_nvec.get_array('matrix')[0]}  {input_qm_nvec.get_array('matrix')[1]}  {input_qm_nvec.get_array('matrix')[2]} \n")
-
-            f.write(f'mode    {input_mode.value}\n')
-
-            f.write(f'temp    {input_temp.value}\n')
-
-            f.write(f'damping    {input_damping.value}\n')
-
-            f.write(f'Nstep    {input_Nstep.value}\n')
-
-            f.write(f'timestep    {input_timestep.value}\n')
-
-            f.write(f'qpoints    {input_qpoints.value}\n')
-
-            f.write(f'qfile    ./{input_qfile.filename}\n')
-
-            f.write(f'plotenergy    {input_plotenergy.value}\n')
-
-            f.write(f'do_avrg    {input_do_avrg.value}\n')
-
-        codeinfo = datastructures.CodeInfo()
-        codeinfo.cmdline_params = []# note that nothing need here for SD 
-        codeinfo.code_uuid = self.inputs.code.uuid
-        #codeinfo.stdout_name = self.metadata.options.output_filename
-        #codeinfo.withmpi = self.inputs.metadata.options.withmpi
-
-        # Prepare a `CalcInfo` to be returned to the engine
         calcinfo = datastructures.CalcInfo()
-        calcinfo.codes_info = [codeinfo]
-        calcinfo.local_copy_list = [
+        if self.inputs.inpsd_dat_exist == 0:
+            # Create input file: inpsd.dat
+            input_dmdata = self.inputs.dmdata
+            input_jij = self.inputs.jij
+            input_momfile = self.inputs.momfile
+            input_posfile = self.inputs.posfile
+            input_qfile = self.inputs.qfile
+
+            input_simid = self.inputs.inpsd['simid']   #here parameter is stored in inpsd DICT
+            input_ncell = self.inputs.inpsd['ncell']
+            input_BC = self.inputs.inpsd['BC']
+            input_cell = self.inputs.inpsd['cell']
+            input_do_prnstruct = self.inputs.inpsd['do_prnstruct']
+            input_maptype = self.inputs.inpsd['maptype']
+            input_SDEalgh = self.inputs.inpsd['SDEalgh']
+            input_Initmag = self.inputs.inpsd['Initmag']
+            input_ip_mode = self.inputs.inpsd['ip_mode']
+            input_qm_svec = self.inputs.inpsd['qm_svec']
+            input_qm_nvec = self.inputs.inpsd['qm_nvec']
+            input_mode = self.inputs.inpsd['mode']
+            input_temp = self.inputs.inpsd['temp']
+            input_damping = self.inputs.inpsd['damping']
+            input_Nstep = self.inputs.inpsd['Nstep']
+            input_timestep = self.inputs.inpsd['timestep']
+            input_qpoints = self.inputs.inpsd['qpoints']
+            input_plotenergy = self.inputs.inpsd['plotenergy']
+            input_do_avrg = self.inputs.inpsd['do_avrg']
+            with folder.open(self.options.input_filename, 'a+') as f:
+                f.write(f'simid    {input_simid}\n')
+
+                f.write(f"ncell   {input_ncell}\n")
+
+                f.write(f'BC    {input_BC}\n')
+
+                f.write(f"cell   {input_cell}\n")
+
+                f.write(f'do_prnstruct    {input_do_prnstruct}\n')
+
+                f.write(f'input_posfile    ./{input_posfile.filename}\n')
+
+                f.write(f'exchange    ./{input_jij.filename}\n')
+
+                f.write(f'momfile    ./{input_momfile.filename}\n')
+
+                f.write(f'dm    ./{input_dmdata.filename}\n')
+
+                f.write(f'maptype    {input_maptype}\n')
+
+                f.write(f'SDEalgh    {input_SDEalgh}\n')
+
+                f.write(f'Initmag    {input_Initmag}\n')
+
+                f.write(f'ip_mode    {input_ip_mode}\n')
+
+                f.write(f"qm_svec   {input_qm_svec} \n")
+
+                f.write(f"qm_nvec   {input_qm_nvec} \n")
+
+                f.write(f'mode    {input_mode}\n')
+
+                f.write(f'temp    {input_temp}\n')
+
+                f.write(f'damping    {input_damping}\n')
+
+                f.write(f'Nstep    {input_Nstep}\n')
+
+                f.write(f'timestep    {input_timestep}\n')
+
+                f.write(f'qpoints    {input_qpoints}\n')
+
+                f.write(f'qfile    ./{input_qfile.filename}\n')
+
+                f.write(f'plotenergy    {input_plotenergy}\n')
+
+                f.write(f'do_avrg    {input_do_avrg}\n')
+
+            calcinfo.local_copy_list = [
+            (self.inputs.dmdata.uuid, self.inputs.dmdata.filename,
+            self.inputs.dmdata.filename),
+            (self.inputs.jij.uuid, self.inputs.jij.filename, self.inputs.jij.filename),
+            (self.inputs.momfile.uuid, self.inputs.momfile.filename,
+            self.inputs.momfile.filename),
+            (self.inputs.posfile.uuid, self.inputs.posfile.filename,
+            self.inputs.posfile.filename),
+            (self.inputs.qfile.uuid, self.inputs.qfile.filename,
+            self.inputs.qfile.filename),
+            ]
+        else:
+            calcinfo.local_copy_list = [
             (self.inputs.dmdata.uuid, self.inputs.dmdata.filename,
              self.inputs.dmdata.filename),
             (self.inputs.jij.uuid, self.inputs.jij.filename, self.inputs.jij.filename),
@@ -187,7 +191,22 @@ class SpinDynamic_core_calculations(CalcJob):
              self.inputs.posfile.filename),
             (self.inputs.qfile.uuid, self.inputs.qfile.filename,
              self.inputs.qfile.filename),
-        ]
+            (self.inputs.inpsd_dat.uuid, self.inputs.inpsd_dat.filename,
+            self.inputs.inpsd_dat.filename),
+            ]
+
+
+
+        input_retrieve_list_name = self.inputs.retrieve_list_name
+        codeinfo = datastructures.CodeInfo()
+        codeinfo.cmdline_params = []# note that nothing need here for SD 
+        codeinfo.code_uuid = self.inputs.code.uuid
+        #codeinfo.stdout_name = self.metadata.options.output_filename
+        #codeinfo.withmpi = self.inputs.metadata.options.withmpi
+        # Prepare a `CalcInfo` to be returned to the engine
+        
+        calcinfo.codes_info = [codeinfo]
+        
         #calc_info.remote_copy_list[(self.inputs.parent_folder.computer.uuid, 'output_folder', 'restart_folder')]
         calcinfo.retrieve_list =input_retrieve_list_name.get_list()
         return calcinfo
