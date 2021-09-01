@@ -6,10 +6,11 @@ Register calculations via the "aiida.calculations" entry point in setup.json.
 from aiida.common import datastructures
 from aiida.engine import CalcJob
 from aiida.orm import SinglefileData, Int, Float, Str, Bool, List, Dict, ArrayData, XyData, SinglefileData, FolderData, RemoteData
-from aiida.plugins import DataFactory,CalculationFactory
+from aiida.plugins import DataFactory, CalculationFactory
 import numpy as np
 
 # registed in setup.json file
+
 
 class SpinDynamic_core_calculations(CalcJob):
     """
@@ -33,10 +34,13 @@ class SpinDynamic_core_calculations(CalcJob):
                    help='posfile input file')
         spec.input('qfile', valid_type=SinglefileData, help='qfile input file')
         # inpsd.dat input section:
-        spec.input('inpsd_dat_exist', valid_type=Int, help='sign of usage of dict of inpsd.dat')
-        spec.input('inpsd', valid_type=Dict, help='the dict of inpsd.dat',required = False)
-        
-        spec.input('inpsd_dat', valid_type=SinglefileData, help='direct input of inpsd.dat',required = False)
+        spec.input('inpsd_dat_exist', valid_type=Int,
+                   help='sign of usage of dict of inpsd.dat')
+        spec.input('inpsd', valid_type=Dict,
+                   help='the dict of inpsd.dat', required=False)
+
+        spec.input('inpsd_dat', valid_type=SinglefileData,
+                   help='direct input of inpsd.dat', required=False)
 
         '''
         #the orginal implementation 
@@ -65,7 +69,8 @@ class SpinDynamic_core_calculations(CalcJob):
         spec.input('plotenergy', valid_type=Int, help='like 1')
         spec.input('do_avrg', valid_type=Str, help='Y or N')
         '''
-        spec.input('retrieve_list_name', valid_type=List, help='list of output file name')
+        spec.input('retrieve_list_name', valid_type=List,
+                   help='list of output file name')
         # output sections:
         # the instance that defined here should be used in parser
         spec.output('totenergy', valid_type=ArrayData,
@@ -101,7 +106,8 @@ class SpinDynamic_core_calculations(CalcJob):
             input_posfile = self.inputs.posfile
             input_qfile = self.inputs.qfile
 
-            input_simid = self.inputs.inpsd['simid']   #here parameter is stored in inpsd DICT
+            # here parameter is stored in inpsd DICT
+            input_simid = self.inputs.inpsd['simid']
             input_ncell = self.inputs.inpsd['ncell']
             input_BC = self.inputs.inpsd['BC']
             input_cell = self.inputs.inpsd['cell']
@@ -170,50 +176,44 @@ class SpinDynamic_core_calculations(CalcJob):
                 f.write(f'do_avrg    {input_do_avrg}\n')
 
             calcinfo.local_copy_list = [
-            (self.inputs.dmdata.uuid, self.inputs.dmdata.filename,
-            self.inputs.dmdata.filename),
-            (self.inputs.jij.uuid, self.inputs.jij.filename, self.inputs.jij.filename),
-            (self.inputs.momfile.uuid, self.inputs.momfile.filename,
-            self.inputs.momfile.filename),
-            (self.inputs.posfile.uuid, self.inputs.posfile.filename,
-            self.inputs.posfile.filename),
-            (self.inputs.qfile.uuid, self.inputs.qfile.filename,
-            self.inputs.qfile.filename),
+                (self.inputs.dmdata.uuid, self.inputs.dmdata.filename,
+                 self.inputs.dmdata.filename),
+                (self.inputs.jij.uuid, self.inputs.jij.filename,
+                 self.inputs.jij.filename),
+                (self.inputs.momfile.uuid, self.inputs.momfile.filename,
+                 self.inputs.momfile.filename),
+                (self.inputs.posfile.uuid, self.inputs.posfile.filename,
+                 self.inputs.posfile.filename),
+                (self.inputs.qfile.uuid, self.inputs.qfile.filename,
+                 self.inputs.qfile.filename),
             ]
         else:
             calcinfo.local_copy_list = [
-            (self.inputs.dmdata.uuid, self.inputs.dmdata.filename,
-             self.inputs.dmdata.filename),
-            (self.inputs.jij.uuid, self.inputs.jij.filename, self.inputs.jij.filename),
-            (self.inputs.momfile.uuid, self.inputs.momfile.filename,
-             self.inputs.momfile.filename),
-            (self.inputs.posfile.uuid, self.inputs.posfile.filename,
-             self.inputs.posfile.filename),
-            (self.inputs.qfile.uuid, self.inputs.qfile.filename,
-             self.inputs.qfile.filename),
-            (self.inputs.inpsd_dat.uuid, self.inputs.inpsd_dat.filename,
-            self.inputs.inpsd_dat.filename),
+                (self.inputs.dmdata.uuid, self.inputs.dmdata.filename,
+                 self.inputs.dmdata.filename),
+                (self.inputs.jij.uuid, self.inputs.jij.filename,
+                 self.inputs.jij.filename),
+                (self.inputs.momfile.uuid, self.inputs.momfile.filename,
+                 self.inputs.momfile.filename),
+                (self.inputs.posfile.uuid, self.inputs.posfile.filename,
+                 self.inputs.posfile.filename),
+                (self.inputs.qfile.uuid, self.inputs.qfile.filename,
+                 self.inputs.qfile.filename),
+                (self.inputs.inpsd_dat.uuid, self.inputs.inpsd_dat.filename,
+                 self.inputs.inpsd_dat.filename),
             ]
-
-
 
         input_retrieve_list_name = self.inputs.retrieve_list_name
         codeinfo = datastructures.CodeInfo()
-        codeinfo.cmdline_params = []# note that nothing need here for SD 
+        codeinfo.cmdline_params = []  # note that nothing need here for SD
         codeinfo.code_uuid = self.inputs.code.uuid
         #codeinfo.stdout_name = self.metadata.options.output_filename
         #codeinfo.withmpi = self.inputs.metadata.options.withmpi
         # Prepare a `CalcInfo` to be returned to the engine
-        
+
         calcinfo.codes_info = [codeinfo]
-        
+
         #calc_info.remote_copy_list[(self.inputs.parent_folder.computer.uuid, 'output_folder', 'restart_folder')]
-        calcinfo.retrieve_list =input_retrieve_list_name.get_list()
+        calcinfo.retrieve_list = input_retrieve_list_name.get_list()
         return calcinfo
 
-
-'''
-with open('t.dat','a+') as f:
-    ...:     f.write("cell   ")
-    ...:     np.savetxt(f,a)
-'''

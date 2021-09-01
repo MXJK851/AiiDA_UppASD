@@ -12,19 +12,13 @@
         "Natural Language :: English",
         "Framework :: AiiDA"
     ],
-    "version": "0.0.2",
+    "version": "0.1.0",
     "entry_points": {
-        "aiida.data": [
-            "UppASD_core_data = UppASD_AiiDA.data.core_data:SpinDynamic_core_parameters"
-        ],
         "aiida.calculations": [
             "UppASD_core_calculations = UppASD_AiiDA.calculations.core_calcs:SpinDynamic_core_calculations"
         ],
         "aiida.parsers": [
             "UppASD_core_parsers = UppASD_AiiDA.parsers.core_parser:SpinDynamic_core_parser"
-        ], 
-        "aiida.cmdline.data": [
-            "UppASD_core_cmdline = UppASD_AiiDA.cmdline.core_cmdline:SpinDynamic_core_cmdline"
         ]
     },
     "include_package_data": true,

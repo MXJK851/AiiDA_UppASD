@@ -6,23 +6,28 @@ Created on Mon Aug 23 15:15:05 2021
 @author: qichen
 """
 from aiida.plugins import DataFactory, CalculationFactory
-from aiida.engine import run
 from aiida.orm import Code, SinglefileData, Int, Float, Str, Bool, List, Dict, ArrayData, XyData, SinglefileData, FolderData, RemoteData
-import numpy as np
 import aiida
 import os
+from aiida.engine import submit
+
 aiida.load_profile()
+code = Code.get_from_string('uppasd_dev@uppasd_local')
+aiida_uppasd = CalculationFactory('UppASD_core_calculations')
+builder = aiida_uppasd.get_builder()
+
+
 #pre-prepared files
 dmdata = SinglefileData(
-    file=os.path.join(os.getcwd(), "input_files", 'dmdata'))
+    file=os.path.join(os.getcwd(), "input_files2", 'dmdata'))
 jij = SinglefileData(
-    file=os.path.join(os.getcwd(), "input_files", 'jij'))
+    file=os.path.join(os.getcwd(), "input_files2", 'jij'))
 momfile = SinglefileData(
-    file=os.path.join(os.getcwd(), "input_files", 'momfile'))
+    file=os.path.join(os.getcwd(), "input_files2", 'momfile'))
 posfile = SinglefileData(
-    file=os.path.join(os.getcwd(), "input_files", 'posfile'))
+    file=os.path.join(os.getcwd(), "input_files2", 'posfile'))
 qfile = SinglefileData(
-    file=os.path.join(os.getcwd(), "input_files", 'qfile'))
+    file=os.path.join(os.getcwd(), "input_files2", 'qfile'))
 
 
 # inpsd.dat file selection
@@ -55,20 +60,21 @@ qpoints = Str('F')
 plotenergy = Int(1)
 do_avrg = Str('Y')
 
-code = Code.get_from_string('uppasd_dev@uppasd_local')
 
-r_l = List(list= [f'coord.{simid.value}.out',
-                                f'qm_minima.{simid.value}.out',
-                                f'qm_sweep.{simid.value}.out',
-                                f'qpoints.out',
-                                f'totenergy.{simid.value}.out',
-                                f'averages.{simid.value}.out',
-                                'fort.2000',
-                                'inp.SCsurf_T.yaml',
-                                'qm_restart.SCsurf_T.out',
-                                'restart.SCsurf_T.out'])
+r_l = List(list=[f'coord.{simid.value}.out',
+                 f'qm_minima.{simid.value}.out',
+                 f'qm_sweep.{simid.value}.out',
+                 'qpoints.out',
+                 f'totenergy.{simid.value}.out',
+                 f'averages.{simid.value}.out',
+                 'fort.2000',
+                 'inp.{simid.value}.yaml',
+                 'qm_restart.{simid.value}.out',
+                 'restart.{simid.value}.out'])
+
+
 # set up calculation
-inpsd = Dict()    
+inpsd = Dict()
 inpsd.set_attribute('simid', simid)
 inpsd.set_attribute('ncell', ncell)
 inpsd.set_attribute('BC', BC)
@@ -91,31 +97,20 @@ inpsd.set_attribute('do_avrg', do_avrg)
 #inpsd.set_attribute()
 
 
-
-
-
-
-inputs = {
-    'code': code,
-    'dmdata': dmdata,
-    'jij': jij,
-    'momfile': momfile,
-    'posfile': posfile,
-    'qfile':qfile,
-    'inpsd': inpsd,
-    #'inpsd_dat': inpsd_dat,
-    'retrieve_list_name': r_l,
-    'inpsd_dat_exist': Int(0),
-    'metadata': {
-        'options': {
-            'max_wallclock_seconds': 60,
-            'resources': {'num_machines': 1},
-            'input_filename': 'inpsd.dat',
-            'parser_name': 'UppASD_core_parsers',
-            
-        },
-
-    },
-}
-
-result = run(CalculationFactory('UppASD_core_calculations'), **inputs)
+builder.code = code
+builder.dmdata = dmdata
+builder.jij = jij
+builder.momfile = momfile
+builder.posfile = posfile
+builder.qfile = qfile
+builder.inpsd = inpsd
+builder.retrieve_list_name = r_l
+builder.inpsd_dat_exist = Int(0)
+builder.metadata.options.resources = {'num_machines': 1}
+builder.metadata.options.max_wallclock_seconds = 120
+builder.metadata.options.input_filename = 'inpsd.dat'
+builder.metadata.options.parser_name = 'UppASD_core_parsers'
+builder.metadata.label = 'Demo2'
+builder.metadata.description = 'Test demo2 for UppASD-AiiDA'
+job_node = submit(builder)
+print('Job submitted, PK: {}'.format(job_node.pk))
