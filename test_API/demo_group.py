@@ -10,6 +10,6 @@ import aiida
 aiida.load_profile()
 demo_group = Group(label="demo_group")
 demo_group.store()
-work_node = load_node('16218')
+work_node = load_node('16448')
 demo_group.add_nodes(work_node.called)
 

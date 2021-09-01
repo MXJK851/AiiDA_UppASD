@@ -67,7 +67,7 @@ def averages_file_paser(file_name_of_averages):
     M_z = np.array(list(np.array(result)[:, 3]))
     M = np.array(list(np.array(result)[:, 4]))
     M_stdv = np.array(list(np.array(result)[:, 5]))
-    return Iter_num,M_x, M_y, M_z, M, M_stdv
+    return Iter_num_average,M_x, M_y, M_z, M, M_stdv
 
 
 '''
@@ -118,7 +118,7 @@ class SpinDynamic_core_parser(Parser):
             Iter_num_totenergy, Tot, Exc, Ani, DM, PD, BiqDM, BQ, Dip, Zeeman, LSF, Chir = total_energy_file_paser(
                 f)
             output_totenergy = ArrayData()
-            output_totenergy.set_array('Iter_num_totenergy', Iter_num)
+            output_totenergy.set_array('Iter_num_totenergy', Iter_num_totenergy)
             output_totenergy.set_array('Tot', Tot)
             output_totenergy.set_array('Exc', Exc)
             output_totenergy.set_array('Ani', Ani)
