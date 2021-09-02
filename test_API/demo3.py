@@ -113,6 +113,6 @@ def multi_temp(temp_list):
         submit_single_calc(Float(t))
     
 
-temp_list = List(list=list(range(0, 50, 10)))
+temp_list = List(list=list(range(0, 150, 30)))
 
 multi_temp(temp_list)

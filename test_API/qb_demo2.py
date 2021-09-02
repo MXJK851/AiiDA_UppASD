@@ -80,7 +80,7 @@ for pk in pk_list:
                        'M': list(map(float, M_list.tolist())),
                      })
     df.set_axis(list(map(int, Iter_num_list)))
-    #demo_plot1(df,label,'./demo3_plots')
+    demo_plot1(df,label,'./demo3_plots')
 plot_df_1 = plot_df_1.set_axis(list(map(int, Iter_num_list)))
 demo_plot1(plot_df_1,'M_x','./demo3_plots') 
 
